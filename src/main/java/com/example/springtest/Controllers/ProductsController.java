@@ -6,6 +6,7 @@ import com.example.springtest.exeptions.ResourseNotFoundException;
 import com.example.springtest.model.Products;
 import com.example.springtest.services.ProductsServices;
 
+import com.example.springtest.validators.ProductValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductsController {
     private final ProductsServices productsServices;
     private final ProductsConverter converter;
+    private final ProductValidator productValidator;
 
     @GetMapping
     public Page<ProductDto> getAllProducts(
@@ -41,6 +43,7 @@ public class ProductsController {
 
     @PostMapping
     public ProductDto saveNewProducts(@RequestBody ProductDto productDto) {
+        productValidator.validate(productDto);
         Products products = converter.dtoToEntity(productDto);
         products = productsServices.save(products);
         return converter.entityToDto(products);
@@ -48,7 +51,8 @@ public class ProductsController {
 
     @PutMapping
     public ProductDto updateProducts(@RequestBody ProductDto productDto) throws ResourseNotFoundException {
-        Products products =productsServices.update(productDto);
+        productValidator.validate(productDto);
+        Products products = productsServices.update(productDto);
         return converter.entityToDto(products);
     }
 
